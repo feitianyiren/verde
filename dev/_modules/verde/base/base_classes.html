@@ -308,6 +308,10 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># The default dimension names for generated outputs</span>
+    <span class="c1"># (pd.DataFrame, xr.Dataset, etc)</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;northing&quot;</span><span class="p">,</span> <span class="s2">&quot;easting&quot;</span><span class="p">)</span>
+
 <div class="viewcode-block" id="BaseGridder.predict"><a class="viewcode-back" href="../../../api/generated/verde.base.BaseGridder.html#verde.BaseGridder.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict data on the given coordinate values. NOT IMPLEMENTED.</span>
@@ -373,6 +377,8 @@
 <span class="sd">        coordinates : tuple of arrays</span>
 <span class="sd">            Arrays with the coordinates of each data point. Should be in the</span>
 <span class="sd">            following order: (easting, northing, vertical, ...).</span>
+<span class="sd">            For the specific definition of coordinate systems and what these</span>
+<span class="sd">            names mean, see the class docstring.</span>
 <span class="sd">        data : array or tuple of arrays</span>
 <span class="sd">            The data values of each data point. If the data has more than one</span>
 <span class="sd">            component, *data* must be a tuple of arrays (one for each</span>
@@ -415,6 +421,8 @@
 <span class="sd">        coordinates : tuple of arrays</span>
 <span class="sd">            Arrays with the coordinates of each data point. Should be in the</span>
 <span class="sd">            following order: (easting, northing, vertical, ...).</span>
+<span class="sd">            For the specific definition of coordinate systems and what these</span>
+<span class="sd">            names mean, see the class docstring.</span>
 <span class="sd">        data : array or tuple of arrays</span>
 <span class="sd">            The data values of each data point. If the data has more than one</span>
 <span class="sd">            component, *data* must be a tuple of arrays (one for each</span>
@@ -471,8 +479,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        region : list = [W, E, S, N]</span>
-<span class="sd">            The boundaries of a given region in Cartesian or geographic</span>
-<span class="sd">            coordinates.</span>
+<span class="sd">            The west, east, south, and north boundaries of a given region.</span>
 <span class="sd">        shape : tuple = (n_north, n_east) or None</span>
 <span class="sd">            The number of points in the South-North and West-East directions,</span>
 <span class="sd">            respectively.</span>
@@ -481,8 +488,10 @@
 <span class="sd">            respectively.</span>
 <span class="sd">        dims : list or None</span>
 <span class="sd">            The names of the northing and easting data dimensions,</span>
-<span class="sd">            respectively, in the output grid. Defaults to ``[&#39;northing&#39;,</span>
-<span class="sd">            &#39;easting&#39;]``. **NOTE: This is an exception to the &quot;easting&quot; then</span>
+<span class="sd">            respectively, in the output grid. Default is determined from the</span>
+<span class="sd">            ``dims`` attribute of the class. Must be defined in the following</span>
+<span class="sd">            order: northing dimension, easting dimension.</span>
+<span class="sd">            **NOTE: This is an exception to the &quot;easting&quot; then</span>
 <span class="sd">            &quot;northing&quot; pattern but is required for compatibility with xarray.**</span>
 <span class="sd">        data_names : list of None</span>
 <span class="sd">            The name(s) of the data variables in the output grid. Defaults to</span>
@@ -510,7 +519,7 @@
 <span class="sd">        verde.grid_coordinates : Generate the coordinate values for the grid.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dims</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dims</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
         <span class="n">region</span> <span class="o">=</span> <span class="n">get_instance_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span>
         <span class="n">coordinates</span> <span class="o">=</span> <span class="n">grid_coordinates</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">projection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -552,8 +561,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        region : list = [W, E, S, N]</span>
-<span class="sd">            The boundaries of a given region in Cartesian or geographic</span>
-<span class="sd">            coordinates.</span>
+<span class="sd">            The west, east, south, and north boundaries of a given region.</span>
 <span class="sd">        size : int</span>
 <span class="sd">            The number of points to generate.</span>
 <span class="sd">        random_state : numpy.random.RandomState or an int seed</span>
@@ -563,8 +571,10 @@
 <span class="sd">            (resulting in different numbers with each run).</span>
 <span class="sd">        dims : list or None</span>
 <span class="sd">            The names of the northing and easting data dimensions,</span>
-<span class="sd">            respectively, in the output dataframe. Defaults to ``[&#39;northing&#39;,</span>
-<span class="sd">            &#39;easting&#39;]``. **NOTE: This is an exception to the &quot;easting&quot; then</span>
+<span class="sd">            respectively, in the output dataframe. Default is determined from</span>
+<span class="sd">            the ``dims`` attribute of the class. Must be defined in the</span>
+<span class="sd">            following order: northing dimension, easting dimension.</span>
+<span class="sd">            **NOTE: This is an exception to the &quot;easting&quot; then</span>
 <span class="sd">            &quot;northing&quot; pattern but is required for compatibility with xarray.**</span>
 <span class="sd">        data_names : list of None</span>
 <span class="sd">            The name(s) of the data variables in the output dataframe. Defaults</span>
@@ -587,7 +597,7 @@
 <span class="sd">            The interpolated values on a random set of points.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dims</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dims</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
         <span class="n">region</span> <span class="o">=</span> <span class="n">get_instance_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span>
         <span class="n">coordinates</span> <span class="o">=</span> <span class="n">scatter_points</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">projection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -636,8 +646,10 @@
 <span class="sd">            The number of points to generate.</span>
 <span class="sd">        dims : list or None</span>
 <span class="sd">            The names of the northing and easting data dimensions,</span>
-<span class="sd">            respectively, in the output dataframe. Defaults to ``[&#39;northing&#39;,</span>
-<span class="sd">            &#39;easting&#39;]``. **NOTE: This is an exception to the &quot;easting&quot; then</span>
+<span class="sd">            respectively, in the output dataframe. Default is determined from</span>
+<span class="sd">            the ``dims`` attribute of the class. Must be defined in the</span>
+<span class="sd">            following order: northing dimension, easting dimension.</span>
+<span class="sd">            **NOTE: This is an exception to the &quot;easting&quot; then</span>
 <span class="sd">            &quot;northing&quot; pattern but is required for compatibility with xarray.**</span>
 <span class="sd">        data_names : list of None</span>
 <span class="sd">            The name(s) of the data variables in the output dataframe. Defaults</span>
@@ -660,7 +672,7 @@
 <span class="sd">            The interpolated values along the profile.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dims</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dims</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
         <span class="n">coordinates</span><span class="p">,</span> <span class="n">distances</span> <span class="o">=</span> <span class="n">profile_coordinates</span><span class="p">(</span><span class="n">point1</span><span class="p">,</span> <span class="n">point2</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">projection</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">check_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">coordinates</span><span class="p">))</span>
@@ -673,25 +685,15 @@
             <span class="p">(</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="n">distances</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">data_names</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">columns</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">])</span></div></div>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">columns</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">])</span></div>
 
-
-<span class="k">def</span> <span class="nf">get_dims</span><span class="p">(</span><span class="n">dims</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get default dimension names.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-
-<span class="sd">    &gt;&gt;&gt; get_dims(dims=None)</span>
-<span class="sd">    (&#39;northing&#39;, &#39;easting&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; get_dims(dims=(&#39;john&#39;, &#39;paul&#39;))</span>
-<span class="sd">    (&#39;john&#39;, &#39;paul&#39;)</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">dims</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">dims</span>
-    <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;northing&quot;</span><span class="p">,</span> <span class="s2">&quot;easting&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_get_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dims</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get default dimension names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dims</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dims</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dims</span></div>
 
 
 <span class="k">def</span> <span class="nf">get_data_names</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_names</span><span class="p">):</span>
@@ -761,7 +763,7 @@
     <p>
         &copy; Copyright 2017-2020, The Verde Developers
       <span class="lastupdated">
-        Last updated on Jan 22, 2020.
+        Last updated on Mar 17, 2020.
       </span>
 
     </p>
